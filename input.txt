@@ -1,0 +1,1 @@
+This is an example txt file which may be encrypted or decrypted.
