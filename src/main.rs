@@ -1,36 +1,68 @@
 use std::fs;
-use std::env;
+// use std::env;
+use std::io::{self};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 4 {
-        println!("Error: Expected 4 arguments, but got {}. Usage: {} <input file> <output file> <key>", args.len(), args[0]);
-        return;
+    println!("Welcome to the XOR encrypter!");
+    loop {
+        println!();
+        println!("Please enter the name of the file to encrypt/decrypt or type \"exit\" to leave:");
+        
+        let mut input_file = String::new();
+        io::stdin().read_line(&mut input_file).unwrap();
+        let input_file = input_file.trim();
+        if input_file == "exit" {
+            break;
+        }
+
+        let file = fs::read(input_file).expect("Error: Unable to read file.");
+
+        if file.len() == 0 {
+            println!("File is empty.");
+            continue;
+        }
+        
+        println!();
+        println!("File size: {} bytes", file.len());
+        println!();
+
+        println!("Type your key here (or type \"exit\" to go back to the start):");
+        let mut input_key = String::new();
+        io::stdin().read_line(&mut input_key).unwrap();
+        let input_key = input_key.trim();
+        if input_key == "exit" {
+            println!();
+            continue;
+        }
+
+        let key = input_key.as_bytes();
+        if key.len() == 0 {
+            println!("Key is empty.");
+            continue;
+        }
+
+        println!();
+        println!("Put the name of your output file here (or type \"exit\" to go back to the start):");
+        let mut output_file = String::new();
+        io::stdin().read_line(&mut output_file).unwrap();
+        let output_file = output_file.trim();
+        if output_file == "exit" {
+            println!();
+            continue;
+        }
+
+        let mut result = Vec::new();
+
+        for i in 0..file.len() {
+            let byte = file[i] ^ key[i % key.len()];
+            result.push(byte);
+        }
+
+        fs::write(&output_file, &result).expect("Error: Unable to write to file.");
+        
+        println!();
+        println!("Done!! Output file: {}", output_file); 
     }
-
-    let file = fs::read(&args[1]).expect("Error: Unable to read file.");
-
-    if file.len() == 0 {
-        println!("Error: File is empty.");
-        return;
-    }
-    
-    println!("File size: {} bytes", file.len());
-
-    let key = args[3].as_bytes();
-    if key.len() == 0 {
-        println!("Error: Key is empty.");
-        return;
-    }
-
-    let mut result = Vec::new();
-
-    for i in 0..file.len() {
-        let byte = file[i] ^ key[i % key.len()];
-        result.push(byte);
-    }
-
-    fs::write(&args[2], &result).expect("Error: Unable to write to file.");
-
-    println!("Done!! Output file: {}", args[2]); 
+    println!();
+    println!("Thank you for coming!");
 }
